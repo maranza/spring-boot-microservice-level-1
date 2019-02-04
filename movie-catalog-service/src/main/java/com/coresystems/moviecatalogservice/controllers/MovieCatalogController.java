@@ -3,6 +3,7 @@ package com.coresystems.moviecatalogservice.controllers;
 import com.coresystems.moviecatalogservice.models.CatalogItem;
 import com.coresystems.moviecatalogservice.models.Movie;
 import com.coresystems.moviecatalogservice.models.Rating;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,17 +17,19 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/catalog")
 public class MovieCatalogController {
-    @RequestMapping("/{userId}")
-    public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
 
-        RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @RequestMapping("/{userId}")
+    public List<CatalogItem> getCatalog(@PathVariable("userId") String userId) {
 
         List<Rating> ratings = Arrays.asList(
                 new Rating("1", 4),
                 new Rating("2", 3)
         );
 
-        return ratings.stream().map(rating ->{
+        return ratings.stream().map(rating -> {
             //getting data from api endpoint and unmarshalling it into a local object
             Movie movie = restTemplate.getForObject("http://localhost:8081/movies/" + rating.getMovieId(), Movie.class);
             return new CatalogItem(movie != null ? movie.getName() : "no movie found", "Kevin Hart in this movie shows us how school is important", rating.getRating());
